@@ -13,6 +13,7 @@ namespace LoLApi.Db
         public DbSet<LoLAccount> LoLAccounts { get; set; }
         public DbSet<SummonerAccount> SummonerAccounts { get; set; }
         public DbSet<RankedInfo> RankedInfo { get; set; }
+        public DbSet<LoLMatch> LoLMatch { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             var config = new ConfigurationBuilder()

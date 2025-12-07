@@ -5,31 +5,28 @@
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Db;
+    using System.Text.Json;
 
     class Program
     {
         //string[] lolServer = { "EUW1", "NA1", "EUN1", "KR", "BR1" , "JP1" , "RU" , "OC1" , "TR1" , "LA1" , "LA2", "SG2" , "TW2" , "VN2" , "ME1" };
+        // info -> participants -> teamId
         static async Task Main()
         {
             LoLApi lolApi = new LoLApi();
             using (var db = new AppDbContext())
             {
                 var me = db.SummonerAccounts.ToList()[0];
-                RankedInfo[] ranks = await lolApi.GetRankedInfo(me.Puuid);
+                string[]? matchIds = LoLDb.GetLatestMatches(me.Puuid);
+                if (matchIds == null) return;
+                foreach(var matchId in matchIds)
+                {
+                    Console.WriteLine(matchId);
+                }
 
-                foreach(var rank in ranks)
-                {
-                    LoLDb.SaveRankedInfo(rank);
-                }
-                
-                foreach (var rank in ranks)
-                {
-                    if(rank.QueueType == "RANKED_SOLO_5x5")
-                    {
-                        Console.WriteLine(rank.Tier + " " + rank.Rank + " " + rank.LeaguePoints + "LP");
-                    }
-                }
+
             }
+            
             //Console.Write("Skriv ditt league namn: ");
             //string gameName = Console.ReadLine();
             //Console.Write("Skriv din league tag: ");
@@ -59,7 +56,7 @@
             //LoLDb.SaveLoLAccount(searchedLoLAccount);
             //LoLDb.SaveSummonerAccount(summonerAccount);
             //Console.ReadLine();
-           
+
 
 
 

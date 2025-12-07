@@ -68,6 +68,44 @@ namespace LoLApi
                 db.SaveChanges();
             }
         }
+        static public void SaveLatestMatches(string puuid, string[] matchIds)
+        {
+            using (var db = new AppDbContext())
+            {
+                string matchIdsString = "";
+                foreach(var matchId in matchIds)
+                {
+                    matchIdsString += matchId + ",";
+                }
+                LoLMatch match = new LoLMatch()
+                {
+                    Puuid = puuid,
+                    MatchIds = matchIdsString
+                };
+                var dbLatestMatches = (from lm in db.LoLMatch
+                                       where lm.Puuid == puuid
+                                       select lm).SingleOrDefault();
+                if(dbLatestMatches == null)
+                {
+                    db.LoLMatch.Add(match);
+                }
+                else
+                {
+                    dbLatestMatches = match;
+                }
+                db.SaveChanges();
+            }
+        }
+        static public string[]? GetLatestMatches(string puuid)
+        {
+            using (var db = new AppDbContext())
+            {
+                var dbLatestMatches = (from lm in db.LoLMatch
+                                       where lm.Puuid == puuid
+                                       select lm).SingleOrDefault();
+                return dbLatestMatches.MatchIds.Split(',');
+            }
+        }
 
 
 

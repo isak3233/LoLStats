@@ -1,5 +1,6 @@
 ﻿using Azure;
 using LoLApi.Db;
+using LoLApi.JsonModels;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections;
@@ -25,79 +26,73 @@ namespace LoLApi
             client.DefaultRequestHeaders.Add("X-Riot-Token", config["X-Riot-Token"]);
             options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
-        public async Task<LoLAccount?> SearchForLoLAccount(string gameName, string tagLine)
+        public async Task<T?> SendGetAndDeserialize<T>(string url)
         {
-            string url = $"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}";
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode(); 
+            string? response = await SendGetRequest(url);
+            if (response is null)
+                return default;
 
-                string responseBody = await response.Content.ReadAsStringAsync();
-                LoLAccount lolAccount = JsonSerializer.Deserialize<LoLAccount>(responseBody,options);
-                return lolAccount;
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine($"Request error: {e.Message}");
-            }
-            return null;
+            return JsonSerializer.Deserialize<T>(response, options);
         }
-        public async Task<SummonerAccount?> SearchForSummonerAccount(string puuid, string server)
+        private async Task<string?> SendGetRequest(string url)
         {
-            string url = $"https://{server}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}";
             try
             {
                 HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
 
                 string responseBody = await response.Content.ReadAsStringAsync();
-                SummonerAccount summonerAccount = JsonSerializer.Deserialize<SummonerAccount>(responseBody, options);
-                summonerAccount.Region = server;
-                return summonerAccount;
+                return responseBody;
             }
             catch (HttpRequestException e)
             {
                 Console.WriteLine($"Request error: {e.Message}");
+                return null;
             }
-            return null;
+        }
+        public async Task<LoLAccount?> SearchForLoLAccount(string gameName, string tagLine)
+        {
+            string url = $"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}";
+
+                
+            LoLAccount lolAccount = await SendGetAndDeserialize<LoLAccount>(url);
+            return lolAccount;
+            
+
+        }
+        public async Task<SummonerAccount?> SearchForSummonerAccount(string puuid, string server)
+        {
+            string url = $"https://{server}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}";
+            
+
+            SummonerAccount summonerAccount = await SendGetAndDeserialize<SummonerAccount>(url);
+            summonerAccount.Region = server;
+            return summonerAccount;
+            
         }
         public async Task<string[]> GetLoLMatches(string puuid, string? type = null, int start = 0, int amountOfMatches = 20)
         {
             type = type == null ? "" : $"type={type}&";
             string url = $"https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?{type}start={start}&count={amountOfMatches}";
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
 
-                string responseBody = await response.Content.ReadAsStringAsync();
-                string[] latestMatches = JsonSerializer.Deserialize<string[]>(responseBody, options);
-                return latestMatches;
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine($"Request error: {e.Message}");
-            }
-            return null;
+            string[] latestMatches = await SendGetAndDeserialize<string[]>(url);
+            return latestMatches;
+            
+            
+        }
+        public async Task<MatchInfoRoot> GetMatchInfo(string matchId)
+        {
+            string url = $"https://europe.api.riotgames.com/lol/match/v5/matches/{matchId}";
+
+            dynamic matchInfo = await SendGetAndDeserialize<MatchInfoRoot>(url);
+            return matchInfo;
         }
         public async Task<RankedInfo[]> GetRankedInfo(string puuid)
         {
             string url = $"https://euw1.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}";
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
 
-                string responseBody = await response.Content.ReadAsStringAsync();
-                RankedInfo[] rankedInfo = JsonSerializer.Deserialize<RankedInfo[]>(responseBody, options);
-                return rankedInfo;
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine($"Request error: {e.Message}");
-            }
-            return null;
+            RankedInfo[] rankedInfo = await SendGetAndDeserialize<RankedInfo[]>(url);
+            return rankedInfo;
         }
     }
 }
