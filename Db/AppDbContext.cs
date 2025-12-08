@@ -8,18 +8,22 @@ using System.Threading.Tasks;
 
 namespace LoLApi.Db
 {
-    internal class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
         public DbSet<LoLAccount> LoLAccounts { get; set; }
         public DbSet<SummonerAccount> SummonerAccounts { get; set; }
         public DbSet<RankedInfo> RankedInfo { get; set; }
         public DbSet<LoLMatch> LoLMatch { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        //protected override void OnConfiguring(DbContextOptionsBuilder options)
+        //{
+        //    var config = new ConfigurationBuilder()
+        //        .AddJsonFile("appsettings.Development.json", optional: true)
+        //        .Build();
+        //    options.UseSqlServer(config["ConnectionStrings:DefaultConnection"]);
+        //}
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.Development.json", optional: true)
-                .Build();
-            options.UseSqlServer(config["ConnectionStrings:DefaultConnection"]);
         }
     }
 }

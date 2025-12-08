@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LoLApi.Db
 {
-    internal class RankedInfo
+    public class RankedInfo
     {
         [Key]
         public int Id { get; set; }

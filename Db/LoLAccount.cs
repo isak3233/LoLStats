@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LoLApi.Db
 {
-    internal class LoLAccount
+    public class LoLAccount
     {
         [Key]
         public string Puuid { get; set; }

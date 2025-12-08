@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LoLApi.Db
 {
-    internal class LoLMatch
+    public class LoLMatch
     {
         [Key]
         public string Puuid { get; set; }

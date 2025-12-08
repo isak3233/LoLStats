@@ -13,14 +13,14 @@ using System.Threading.Tasks;
 
 namespace LoLApi
 {
-    internal class LoLApi
+    public class LoLApi
     {
         private HttpClient client;
         private JsonSerializerOptions options;
         public LoLApi()
         {
             var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddJsonFile("appsettings.json", optional: true)
                 .Build();
             client = new HttpClient();
             client.DefaultRequestHeaders.Add("X-Riot-Token", config["X-Riot-Token"]);
@@ -54,7 +54,6 @@ namespace LoLApi
         {
             string url = $"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}";
 
-                
             LoLAccount lolAccount = await SendGetAndDeserialize<LoLAccount>(url);
             return lolAccount;
             
@@ -87,11 +86,12 @@ namespace LoLApi
             dynamic matchInfo = await SendGetAndDeserialize<MatchInfoRoot>(url);
             return matchInfo;
         }
-        public async Task<RankedInfo[]> GetRankedInfo(string puuid)
+        public async Task<RankedInfo[]?> GetRankedInfo(string puuid)
         {
             string url = $"https://euw1.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}";
 
-            RankedInfo[] rankedInfo = await SendGetAndDeserialize<RankedInfo[]>(url);
+            RankedInfo[]? rankedInfo = await SendGetAndDeserialize<RankedInfo[]?>(url);
+            if (rankedInfo == null) return null;
             return rankedInfo;
         }
     }

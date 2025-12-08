@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace LoLApi.Db
 {
-    internal class SummonerAccount
+    public class SummonerAccount
     {
         [Key]
         public string Puuid { get; set; }

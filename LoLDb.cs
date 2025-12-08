@@ -8,70 +8,71 @@ using System.Threading.Tasks;
 
 namespace LoLApi
 {
-    internal class LoLDb
+    public class LoLDb
     {
-        static public void SaveLoLAccount(LoLAccount account)
+        private readonly AppDbContext _db;
+        public LoLDb(AppDbContext db)
         {
-            using (var db = new AppDbContext())
-            {
-                var dbLoLAccount = (from la in db.LoLAccounts
-                                    where la.Puuid == account.Puuid
-                                    select la).SingleOrDefault();
+            _db = db;
+        }
+
+        public void SaveLoLAccount(LoLAccount account)
+        {
+                
+
+            LoLAccount? dbLoLAccount = _db.LoLAccounts.Find(account.Puuid);
                 if (dbLoLAccount == null)
                 {
-                    db.LoLAccounts.Add(account);
+                    _db.LoLAccounts.Add(account);
                 }
                 else
                 {
                     dbLoLAccount = account;
                 }
-                db.SaveChanges();
-            }
+                _db.SaveChanges();
+
         }
-        static public void SaveSummonerAccount(SummonerAccount account)
+        public void SaveSummonerAccount(SummonerAccount account)
         {
-            using (var db = new AppDbContext())
-            {
-                var dbSummonerAccount = (from sb in db.SummonerAccounts
-                                    where sb.Puuid == account.Puuid
-                                    select sb).SingleOrDefault();
+
+            
+                SummonerAccount? dbSummonerAccount = _db.SummonerAccounts.Find(account.Puuid);
                 if (dbSummonerAccount == null)
                 {
-                    db.SummonerAccounts.Add(account);
+                    _db.SummonerAccounts.Add(account);
                 }
                 else
                 {
                     dbSummonerAccount = account;
                 }
-                db.SaveChanges();
-            }
+                _db.SaveChanges();
+            
         }
-        static public void SaveRankedInfo(RankedInfo rankInfo)
+        public void SaveRankedInfo(RankedInfo rankInfo)
         {
-            using (var db = new AppDbContext())
-            {
 
-                var dbRankedInfo = (from ri in db.RankedInfo
+
+                var dbRankedInfo = (from ri in _db.RankedInfo
                                     where ri.Puuid == rankInfo.Puuid && ri.QueueType == rankInfo.QueueType
                                     select ri).SingleOrDefault();
 
 
                 if (dbRankedInfo == null)
                 {
-                    db.RankedInfo.Add(rankInfo);
+                    _db.RankedInfo.Add(rankInfo);
                 }
                 else 
                 {
                     dbRankedInfo = rankInfo;
                 }
 
-                db.SaveChanges();
-            }
+                _db.SaveChanges();
+
         }
-        static public void SaveLatestMatches(string puuid, string[] matchIds)
+        public void SaveLatestMatches(string puuid, string[] matchIds)
         {
-            using (var db = new AppDbContext())
-            {
+
+            
                 string matchIdsString = "";
                 foreach(var matchId in matchIds)
                 {
@@ -82,29 +83,47 @@ namespace LoLApi
                     Puuid = puuid,
                     MatchIds = matchIdsString
                 };
-                var dbLatestMatches = (from lm in db.LoLMatch
+                var dbLatestMatches = (from lm in _db.LoLMatch
                                        where lm.Puuid == puuid
                                        select lm).SingleOrDefault();
                 if(dbLatestMatches == null)
                 {
-                    db.LoLMatch.Add(match);
+                    _db.LoLMatch.Add(match);
                 }
                 else
                 {
                     dbLatestMatches = match;
                 }
-                db.SaveChanges();
-            }
+                _db.SaveChanges();
+            
         }
-        static public string[]? GetLatestMatches(string puuid)
+        public string[]? GetLatestMatches(string puuid)
         {
-            using (var db = new AppDbContext())
-            {
-                var dbLatestMatches = (from lm in db.LoLMatch
-                                       where lm.Puuid == puuid
-                                       select lm).SingleOrDefault();
+
+            LoLMatch? dbLatestMatches = _db.LoLMatch.Find(puuid);
                 return dbLatestMatches.MatchIds.Split(',');
-            }
+            
+        }
+        public LoLAccount? GetLoLAccount(string gameName, string tagLine)
+        {
+            LoLAccount? dbLoLAccount = (from la in _db.LoLAccounts
+                                        where la.GameName == gameName && la.TagLine == tagLine
+                                        select la).SingleOrDefault();
+            return dbLoLAccount;
+        }
+        public SummonerAccount? GetSummonerAccount(string puuid)
+        {
+            SummonerAccount? summonerAccount = _db.SummonerAccounts.Find(puuid);
+            if (summonerAccount == null) return null;
+            return summonerAccount;
+        }
+        public RankedInfo[] GetRankedInfo(string puuid)
+        {
+            var dbRankedInfo = _db.RankedInfo
+                                .Where(ri => ri.Puuid == puuid)
+                                .ToArray();
+            return dbRankedInfo;
+
         }
 
 
