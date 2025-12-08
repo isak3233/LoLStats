@@ -1,6 +1,7 @@
 ﻿namespace LoLApi
 {
     using Db;
+    using LoLApi.LoL;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Mvc.Core;
     using Microsoft.EntityFrameworkCore;

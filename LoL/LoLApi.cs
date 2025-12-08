@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace LoLApi
+namespace LoLApi.LoL
 {
     public class LoLApi
     {
