@@ -19,14 +19,17 @@ namespace LoLApi.Controllers
             _lolService = lolService;
         }
         [HttpGet("{lolName}")]
-        public async Task<IActionResult> GetAccountOverview(string lolName, [FromQuery] string region)
+        public async Task<IActionResult> GetAccountOverview(string lolName, [FromQuery] string region, [FromQuery] bool updateProfile)
         {
-            
-            LoLAccount? lolAccount = await _lolService.GetLoLAccount(lolName);
+       
+            LoLAccount? lolAccount = await _lolService.GetLoLAccount(lolName, updateProfile);
             if (lolAccount == null) return NotFound();
-            SummonerAccount? summonerAccount = await _lolService.GetSummoner(lolAccount.Puuid, region);
+
+
+            // Skulle kunna göra så dessa funktioner samtidigt om man ger dom nya dbcontext objekt
+            SummonerAccount? summonerAccount = await _lolService.GetSummoner(lolAccount.Puuid, region, updateProfile);
             if (summonerAccount == null) return NotFound();
-            RankedInfo[]? ranksInfo = await _lolService.GetRankedInfo(lolAccount.Puuid);
+            RankedInfo[]? ranksInfo = await _lolService.GetRankedInfo(lolAccount.Puuid, updateProfile);
 
             var filteredRanks = ranksInfo.Select(r => new
             {

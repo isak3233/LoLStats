@@ -20,31 +20,54 @@ namespace LoLApi.LoL
             _lolApi = new LoLApi();
             
         }
-        public async Task<LoLAccount?> GetLoLAccount(string lolName)
+        public async Task<LoLAccount?> GetLoLAccount(string lolName, bool updateProfile = false)
         {
             string gameName = lolName.Split('#')[0];
             string tagLine = lolName.Split('#')[1];
-            LoLAccount? dbLoLAccount = _lolDb.GetLoLAccount(gameName, tagLine);
-            LoLAccount? lolAccount = dbLoLAccount ?? await _lolApi.SearchForLoLAccount(gameName, tagLine);
+            LoLAccount? lolAccount;
+
+            if (updateProfile)
+            {
+                lolAccount = await _lolApi.SearchForLoLAccount(gameName, tagLine);
+            } else
+            {
+                LoLAccount? dbLoLAccount = _lolDb.GetLoLAccount(gameName, tagLine);
+                lolAccount = dbLoLAccount ?? await _lolApi.SearchForLoLAccount(gameName, tagLine);
+            }
+                
             if (lolAccount == null) return null;
             _lolDb.SaveLoLAccount(lolAccount);
             return lolAccount;
         }
-        public async Task<SummonerAccount?> GetSummoner(string puuid, string region)
+        public async Task<SummonerAccount?> GetSummoner(string puuid, string region, bool updateProfile = false)
         {
-
-            SummonerAccount? dbSummonerAccount = _lolDb.GetSummonerAccount(puuid);
-            SummonerAccount? summonerAccount = dbSummonerAccount ?? await _lolApi.SearchForSummonerAccount(puuid, region);
+            SummonerAccount? summonerAccount;
+            if (updateProfile)
+            {
+                summonerAccount = await _lolApi.SearchForSummonerAccount(puuid, region);
+            } else
+            {
+                SummonerAccount? dbSummonerAccount = _lolDb.GetSummonerAccount(puuid);
+                summonerAccount = dbSummonerAccount ?? await _lolApi.SearchForSummonerAccount(puuid, region);
+            }
+                
             if (summonerAccount == null) return null;
             _lolDb.SaveSummonerAccount(summonerAccount);
 
             return summonerAccount;
         }
-        public async Task<RankedInfo[]?> GetRankedInfo(string puuid)
+        public async Task<RankedInfo[]?> GetRankedInfo(string puuid, bool updateProfile = false)
         {
-            RankedInfo[] dbRankedInfo = _lolDb.GetRankedInfo(puuid);
             
-            RankedInfo[]? ranksInfo = dbRankedInfo.Length > 0 ? dbRankedInfo : await _lolApi.GetRankedInfo(puuid);
+            RankedInfo[]? ranksInfo;
+            if (updateProfile)
+            {
+                ranksInfo = await _lolApi.GetRankedInfo(puuid);
+            } else
+            {
+                RankedInfo[] dbRankedInfo = _lolDb.GetRankedInfo(puuid);
+                ranksInfo = dbRankedInfo.Length > 0 ? dbRankedInfo : await _lolApi.GetRankedInfo(puuid);
+            }
             foreach (var rankedInfo in ranksInfo)
             {
                 _lolDb.SaveRankedInfo(rankedInfo);

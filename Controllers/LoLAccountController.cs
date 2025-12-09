@@ -21,11 +21,11 @@ namespace LoLApi.Controllers
         }
 
         [HttpGet("{LoLName}")]
-        public async Task<IActionResult> GetSummoner(string lolName, [FromQuery] string region)
+        public async Task<IActionResult> GetSummoner(string lolName, [FromQuery] string region, [FromQuery] bool updateProfile)
         {
-            LoLAccount? lolAccount = await _lolService.GetLoLAccount(lolName);
+            LoLAccount? lolAccount = await _lolService.GetLoLAccount(lolName, updateProfile);
             if (lolAccount == null) return NotFound();
-            SummonerAccount ? summonerAccount = await _lolService.GetSummoner(lolAccount.Puuid, region);
+            SummonerAccount ? summonerAccount = await _lolService.GetSummoner(lolAccount.Puuid, region, updateProfile);
             if(summonerAccount == null) return NotFound();
 
             return Ok(summonerAccount);

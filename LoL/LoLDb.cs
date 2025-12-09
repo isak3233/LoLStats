@@ -1,5 +1,6 @@
 ﻿using LoLApi.Db;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,17 +36,16 @@ namespace LoLApi.LoL
         public void SaveSummonerAccount(SummonerAccount account)
         {
 
-            
-                SummonerAccount? dbSummonerAccount = _db.SummonerAccounts.Find(account.Puuid);
-                if (dbSummonerAccount == null)
-                {
-                    _db.SummonerAccounts.Add(account);
-                }
-                else
-                {
-                    dbSummonerAccount = account;
-                }
-                _db.SaveChanges();
+                
+            SummonerAccount? dbSummonerAccount = _db.SummonerAccounts.Find(account.Puuid);
+
+
+            if (dbSummonerAccount != null)
+            {
+                _db.Entry(dbSummonerAccount).CurrentValues.SetValues(account);
+            }
+
+            _db.SaveChanges();
             
         }
         public void SaveRankedInfo(RankedInfo rankInfo)
@@ -55,16 +55,21 @@ namespace LoLApi.LoL
                 var dbRankedInfo = (from ri in _db.RankedInfo
                                     where ri.Puuid == rankInfo.Puuid && ri.QueueType == rankInfo.QueueType
                                     select ri).SingleOrDefault();
-
-
                 if (dbRankedInfo == null)
                 {
                     _db.RankedInfo.Add(rankInfo);
                 }
                 else 
                 {
-                    dbRankedInfo = rankInfo;
-                }
+                    dbRankedInfo.LeagueId = rankInfo.LeagueId;
+                    dbRankedInfo.Tier = rankInfo.Tier;
+                    dbRankedInfo.Rank = rankInfo.Rank;
+                    dbRankedInfo.LeaguePoints = rankInfo.LeaguePoints;
+                    dbRankedInfo.Wins = rankInfo.Wins;
+                    dbRankedInfo.Losses = rankInfo.Losses;
+
+
+            }
 
                 _db.SaveChanges();
 
