@@ -1,0 +1,8 @@
+.ProfileHeader {
+    display: flex;
+    flex-direction: row;
+    
+}
+.ProfileHeader > * {
+    padding: 5px;
+}

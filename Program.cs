@@ -3,6 +3,7 @@
     using Db;
     using LoLApi.LoL;
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc.Core;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
@@ -36,11 +37,39 @@
 
             var app = builder.Build();
 
+            app.UseStaticFiles();
+            SetUpHtmlMaps(app);
+
             app.UseCors("AllowAll");
             app.MapControllers();
+
+            app.MapFallback(() => Results.File("index.html", "text/html"));
             
 
             app.Run();
+
+        }
+        static void SetUpHtmlMaps(WebApplication app)
+        {
+            var env = app.Environment;
+            var wwwroot = Path.Combine(env.WebRootPath);
+
+            var htmlFiles = Directory.GetFiles(wwwroot, "*.html", SearchOption.AllDirectories);
+
+            foreach (var file in htmlFiles)
+            {
+
+                var relativePath = Path.GetRelativePath(wwwroot, file).Replace("\\", "/");
+
+
+                var route = "/" + relativePath.Replace(".html", "");
+
+                if (relativePath == "index.html")
+                    route = "/";
+
+                app.MapGet(route, () => Results.File(relativePath, "text/html"));
+
+            }
 
         }
         

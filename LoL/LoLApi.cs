@@ -54,7 +54,8 @@ namespace LoLApi.LoL
         {
             string url = $"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}";
 
-            LoLAccount lolAccount = await SendGetAndDeserialize<LoLAccount>(url);
+            LoLAccount? lolAccount = await SendGetAndDeserialize<LoLAccount>(url);
+            if(lolAccount is null) return null;
             return lolAccount;
             
 
@@ -64,7 +65,8 @@ namespace LoLApi.LoL
             string url = $"https://{server}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}";
             
 
-            SummonerAccount summonerAccount = await SendGetAndDeserialize<SummonerAccount>(url);
+            SummonerAccount? summonerAccount = await SendGetAndDeserialize<SummonerAccount>(url);
+            if (summonerAccount == null) return null;
             summonerAccount.Region = server;
             return summonerAccount;
             
@@ -74,16 +76,18 @@ namespace LoLApi.LoL
             type = type == null ? "" : $"type={type}&";
             string url = $"https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?{type}start={start}&count={amountOfMatches}";
 
-            string[] latestMatches = await SendGetAndDeserialize<string[]>(url);
+            string[]? latestMatches = await SendGetAndDeserialize<string[]>(url);
+            if (latestMatches == null) return null;
             return latestMatches;
             
             
         }
-        public async Task<MatchInfoRoot> GetMatchInfo(string matchId)
+        public async Task<MatchInfoRoot?> GetMatchInfo(string matchId)
         {
             string url = $"https://europe.api.riotgames.com/lol/match/v5/matches/{matchId}";
 
-            dynamic matchInfo = await SendGetAndDeserialize<MatchInfoRoot>(url);
+            dynamic? matchInfo = await SendGetAndDeserialize<MatchInfoRoot>(url);
+            if(matchInfo == null) return null;
             return matchInfo;
         }
         public async Task<RankedInfo[]?> GetRankedInfo(string puuid)

@@ -22,15 +22,18 @@ namespace LoLApi.LoL
                 
 
             LoLAccount? dbLoLAccount = _db.LoLAccounts.Find(account.Puuid);
-                if (dbLoLAccount == null)
-                {
-                    _db.LoLAccounts.Add(account);
-                }
-                else
-                {
-                    dbLoLAccount = account;
-                }
-                _db.SaveChanges();
+            
+            
+            if (dbLoLAccount == null)
+            {
+                _db.LoLAccounts.Add(account);
+            }
+            else
+            {
+
+                _db.Entry(dbLoLAccount).CurrentValues.SetValues(account);
+            }
+            _db.SaveChanges();
 
         }
         public void SaveSummonerAccount(SummonerAccount account)
@@ -39,8 +42,11 @@ namespace LoLApi.LoL
                 
             SummonerAccount? dbSummonerAccount = _db.SummonerAccounts.Find(account.Puuid);
 
-
-            if (dbSummonerAccount != null)
+            if(dbSummonerAccount == null)
+            {
+                _db.SummonerAccounts.Add(account);
+            }
+            else
             {
                 _db.Entry(dbSummonerAccount).CurrentValues.SetValues(account);
             }
@@ -97,7 +103,7 @@ namespace LoLApi.LoL
                 }
                 else
                 {
-                    dbLatestMatches = match;
+                    _db.Entry(dbLatestMatches).CurrentValues.SetValues(match);
                 }
                 _db.SaveChanges();
             
