@@ -21,5 +21,8 @@ async function SetAccountData(lolName, region) {
     let accountOverview = await GetAccountOverview(lolName, region)
     document.getElementById("lolName").innerText = accountOverview.gameName + "#" + accountOverview.tagLine
     document.getElementById("summonerLevel").innerText = "lvl " + accountOverview.summonerLevel
+    const img = document.getElementById("profileIcon")
+    img.src = "/api/profileicon/" + accountOverview.profileIconId
+    img.style.visibility = "visible"
     console.log(accountOverview)
 }

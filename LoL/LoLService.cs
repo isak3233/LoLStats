@@ -1,5 +1,7 @@
-﻿using LoLApi.Db;
+﻿using Dapper;
+using LoLApi.Db;
 using LoLApi.Migrations;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,6 +77,12 @@ namespace LoLApi.LoL
 
 
             return ranksInfo;
+        }
+        public byte[]? GetImageFile(int id)
+        {
+            ProfileIcon? profileIcon = _db.ProfileIcon.Find(id);
+            if (profileIcon == null) return null;
+            return profileIcon.Image;
         }
 
     }
